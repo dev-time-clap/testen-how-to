@@ -1,0 +1,13 @@
+{
+  "book": {
+    "isbn": "ISBN-0815",
+    "title": "Just a book"
+  },
+  "author": {
+    "artistName": "Morrigan",
+    "birthday": "2000-01-01"
+  },
+  "publisher": {
+    "name": "Valhalla Media"
+  }  
+}
