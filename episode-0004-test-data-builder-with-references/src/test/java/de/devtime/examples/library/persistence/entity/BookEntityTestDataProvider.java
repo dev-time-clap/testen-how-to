@@ -14,6 +14,7 @@ public class BookEntityTestDataProvider extends BookEntityTestDataBuilder<BookEn
   }
 
   public BookEntityTestDataProvider bookByMorriganWithTitleTestingWithJUnitAndCo() {
+    withAdditionalData(AdditionalBookDataEntityTestDataProvider::bookDetailsForTestingWithJUnitAndCoByMorrigan);
     withIsbn("ISBN-0816");
     withIsOnLoan(false);
     withTitle("Testing with JUnit, Spring & Co.");
