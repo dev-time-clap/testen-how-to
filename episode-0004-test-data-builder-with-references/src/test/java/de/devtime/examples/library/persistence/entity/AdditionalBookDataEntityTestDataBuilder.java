@@ -4,10 +4,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import de.devtime.examples.library.persistence.entity.AdditionalBookDataEntity.AdditionalBookDataEntityBuilder;
-<<<<<<< HEAD
-=======
 import de.devtime.examples.library.test.builder.RecursionGuard;
->>>>>>> 9b7c0383fbee4773ead58dd8e4bf3ca1360e0442
 import de.devtime.examples.library.test.builder.TestDataBuilder;
 
 public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<AdditionalBookDataEntity>>
