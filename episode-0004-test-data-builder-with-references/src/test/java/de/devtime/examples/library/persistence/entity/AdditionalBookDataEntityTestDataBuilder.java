@@ -4,6 +4,10 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import de.devtime.examples.library.persistence.entity.AdditionalBookDataEntity.AdditionalBookDataEntityBuilder;
+<<<<<<< HEAD
+=======
+import de.devtime.examples.library.test.builder.RecursionGuard;
+>>>>>>> 9b7c0383fbee4773ead58dd8e4bf3ca1360e0442
 import de.devtime.examples.library.test.builder.TestDataBuilder;
 
 public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<AdditionalBookDataEntity>>
@@ -15,12 +19,12 @@ public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<A
   private BookEntityTestDataProvider bookTestDataBuilder;
 
   public B withBook(final Consumer<BookEntityTestDataProvider> consumer) {
-    //    RecursionGuard.guard(BookEntityTestDataProvider.class, () -> {
-    this.bookTestDataBuilder = this.bookTestDataBuilder == null
-        ? BookEntityTestDataProvider.create()
-        : this.bookTestDataBuilder;
-    consumer.accept(this.bookTestDataBuilder);
-    //    });
+    RecursionGuard.guard(BookEntityTestDataProvider.class, () -> {
+      this.bookTestDataBuilder = this.bookTestDataBuilder == null
+          ? BookEntityTestDataProvider.create()
+          : this.bookTestDataBuilder;
+      consumer.accept(this.bookTestDataBuilder);
+    });
     return and();
   }
 

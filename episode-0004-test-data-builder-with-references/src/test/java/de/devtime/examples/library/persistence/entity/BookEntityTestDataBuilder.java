@@ -4,6 +4,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import de.devtime.examples.library.persistence.entity.BookEntity.BookEntityBuilder;
+import de.devtime.examples.library.test.builder.RecursionGuard;
 import de.devtime.examples.library.test.builder.TestDataBuilder;
 
 public class BookEntityTestDataBuilder<B extends TestDataBuilder<BookEntity>>
@@ -16,10 +17,12 @@ public class BookEntityTestDataBuilder<B extends TestDataBuilder<BookEntity>>
   private CustomerEntityTestDataProvider customerTestDataProvider;
 
   public B withAdditionalData(final Consumer<AdditionalBookDataEntityTestDataProvider> consumer) {
-    this.additionalDataTestDataProvider = this.additionalDataTestDataProvider == null
-        ? AdditionalBookDataEntityTestDataProvider.create()
-        : this.additionalDataTestDataProvider;
-    consumer.accept(this.additionalDataTestDataProvider);
+    RecursionGuard.guard(AdditionalBookDataEntityTestDataProvider.class, () -> {
+      this.additionalDataTestDataProvider = this.additionalDataTestDataProvider == null
+          ? AdditionalBookDataEntityTestDataProvider.create()
+          : this.additionalDataTestDataProvider;
+      consumer.accept(this.additionalDataTestDataProvider);
+    });
     return and();
   }
 
@@ -29,10 +32,12 @@ public class BookEntityTestDataBuilder<B extends TestDataBuilder<BookEntity>>
   }
 
   public B withCustomer(final Consumer<CustomerEntityTestDataProvider> consumer) {
-    this.customerTestDataProvider = this.customerTestDataProvider == null
-        ? CustomerEntityTestDataProvider.create()
-        : this.customerTestDataProvider;
-    consumer.accept(this.customerTestDataProvider);
+    RecursionGuard.guard(AdditionalBookDataEntityTestDataProvider.class, () -> {
+      this.customerTestDataProvider = this.customerTestDataProvider == null
+          ? CustomerEntityTestDataProvider.create()
+          : this.customerTestDataProvider;
+      consumer.accept(this.customerTestDataProvider);
+    });
     return and();
   }
 
