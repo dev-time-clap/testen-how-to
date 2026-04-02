@@ -3,10 +3,12 @@ package de.devtime.examples.library.persistence.entity;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@SpringBootTest
 class TestDataProviderTests {
 
   @Test
@@ -16,12 +18,12 @@ class TestDataProviderTests {
         .withCustomer(CustomerEntityTestDataProvider::customerErikaMustermann)
         .withIsbn("ISBN-0817")
         .and()
-        .buildWithReferences();
+        .buildWithReferencesAndSave();
 
     log.info("entity: {}", entity);
     assertThat(entity).isNotNull();
     assertThat(entity.getId()).isNotNull();
-    assertThat(entity.getVersion()).isZero();
+    assertThat(entity.getVersion()).isOne();
     assertThat(entity.getIsbn()).isEqualTo("ISBN-0817");
     assertThat(entity.getTitle()).isEqualTo("Testing with JUnit, Spring & Co.");
     assertThat(entity.isOnLoan()).isFalse();
@@ -31,7 +33,7 @@ class TestDataProviderTests {
   void testAdditionalBookDataEntityTestDataProvider() {
     AdditionalBookDataEntity entity = AdditionalBookDataEntityTestDataProvider.create()
         .bookDetailsForTestingWithJUnitAndCoByMorrigan()
-        .buildWithReferences();
+        .buildWithReferencesAndSave();
 
     log.info("entity: {}", entity);
     assertThat(entity).isNotNull();
@@ -50,7 +52,7 @@ class TestDataProviderTests {
         .withLoanedBook(BookEntityTestDataProvider::bookByMorriganWithTitleTestingWithJUnitAndCo)
         .withLoanedBook(BookEntityTestDataProvider::bookByMorriganWithTitleLombokHowTo)
         .withLoanedBook(BookEntityTestDataProvider::bookByMorriganWithTitleSpringBootPrototyping)
-        .buildWithReferences();
+        .buildWithReferencesAndSave();
 
     log.info("entity: {}", entity);
     assertThat(entity).isNotNull();
@@ -61,7 +63,7 @@ class TestDataProviderTests {
 
     entity = CustomerEntityTestDataProvider.create()
         .customerMaxMustermann()
-        .buildWithReferences();
+        .buildWithReferencesAndSave();
 
     log.info("entity: {}", entity);
     assertThat(entity).isNotNull();

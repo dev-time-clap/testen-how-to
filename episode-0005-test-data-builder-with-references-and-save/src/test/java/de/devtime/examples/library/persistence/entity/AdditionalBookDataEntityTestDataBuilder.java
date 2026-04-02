@@ -3,13 +3,20 @@ package de.devtime.examples.library.persistence.entity;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import de.devtime.examples.library.persistence.entity.AdditionalBookDataEntity.AdditionalBookDataEntityBuilder;
-import de.devtime.examples.library.test.builder.RecursionGuard;
-import de.devtime.examples.library.test.builder.TestDataBuilder;
+import org.springframework.context.ApplicationContext;
 
+import de.devtime.examples.library.persistence.entity.AdditionalBookDataEntity.AdditionalBookDataEntityBuilder;
+import de.devtime.examples.library.persistence.repository.AdditionalBookDataRepository;
+import de.devtime.examples.library.test.builder.RecursionGuard;
+import de.devtime.examples.library.test.builder.SaveContext;
+import de.devtime.examples.library.test.builder.TestDataBuilder;
+import de.devtime.examples.library.test.builder.TestDataBuilderWithSaveSupport;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<AdditionalBookDataEntity>>
     extends AdditionalBookDataEntityBuilder<B>
-    implements TestDataBuilder<AdditionalBookDataEntity> {
+    implements TestDataBuilderWithSaveSupport<AdditionalBookDataEntity, AdditionalBookDataRepository> {
 
   // --------------------< Add referenced builder here >--------------------
 
@@ -17,6 +24,7 @@ public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<A
 
   public B withBook(final Consumer<BookEntityTestDataProvider> consumer) {
     RecursionGuard.guard(BookEntityTestDataProvider.class, () -> {
+      log.info("consumer: {}", consumer);
       this.bookTestDataBuilder = this.bookTestDataBuilder == null
           ? BookEntityTestDataProvider.create()
           : this.bookTestDataBuilder;
@@ -50,7 +58,20 @@ public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<A
   // --------------------< Internal builder logic >--------------------
 
   @Override
-  public AdditionalBookDataEntity buildInternally(final boolean withReferences) {
+  public String getUniqueDataSetKey(final AdditionalBookDataEntity entity) {
+    return entity.getSummary();
+  }
+
+  @Override
+  public AdditionalBookDataRepository getRepository(final ApplicationContext appContext) {
+    return appContext.getBean(AdditionalBookDataRepository.class);
+  }
+
+  @Override
+  public AdditionalBookDataEntity buildInternally(
+      final boolean withReferences,
+      final boolean save,
+      final SaveContext context) {
     AdditionalBookDataEntity entity = build().generateId();
     if (this.useExternalId) {
       entity.setId(this.id);
@@ -59,15 +80,24 @@ public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<A
 
     // Build referenced objects
     if (withReferences) {
-      entity.setBook(buildBook(withReferences));
+      if (entity.getBook() == null) {
+        entity.setBook(buildBook(entity, withReferences, save, context));
+      }
+    }
+
+    // Save the entity
+    if (save) {
+      entity = save(entity, context);
     }
     return entity;
   }
 
-  private BookEntity buildBook(final boolean withReferences) {
+  private BookEntity buildBook(final AdditionalBookDataEntity entity, final boolean withReferences, final boolean save,
+      final SaveContext context) {
     BookEntity referencedEntity = null;
     if (this.bookTestDataBuilder != null) {
-      referencedEntity = this.bookTestDataBuilder.buildInternally(withReferences);
+      this.bookTestDataBuilder.withAdditionalData(entity);
+      referencedEntity = this.bookTestDataBuilder.buildInternally(withReferences, save, context);
     }
     return referencedEntity;
   }
