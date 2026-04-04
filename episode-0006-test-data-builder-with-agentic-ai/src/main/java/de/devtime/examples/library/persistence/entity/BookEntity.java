@@ -34,14 +34,14 @@ import lombok.extern.slf4j.Slf4j;
 @Table(name = "BOOK")
 public class BookEntity extends AbstractEntity<BookEntity> {
 
+  @Column(name = "IS_ON_LOAN")
+  private boolean isOnLoan;
+
   @Column(name = "ISBN", nullable = false)
   private String isbn;
 
   @Column(name = "TITLE", nullable = false)
   private String title;
-
-  @Column(name = "IS_ON_LOAN")
-  private boolean isOnLoan;
 
   // Primary link: A book has exactly one set of further details.
   @OneToOne

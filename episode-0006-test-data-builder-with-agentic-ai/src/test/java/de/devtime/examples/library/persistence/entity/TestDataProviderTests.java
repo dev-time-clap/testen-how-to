@@ -19,7 +19,7 @@ class TestDataProviderTests {
     BookEntity entity = BookEntityTestDataProvider.create()
         .bookByMorriganWithTitleTestingWithJUnitAndCo()
         .withCustomer(CustomerEntityTestDataProvider::customerErikaMustermann)
-        .withIsbn("ISBN-0817")
+        .withIsbn("ISBN-0816")
         .and()
         .buildWithReferencesAndSave();
 
