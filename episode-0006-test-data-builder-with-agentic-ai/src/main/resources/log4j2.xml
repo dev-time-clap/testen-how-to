@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <!-- https://stackoverflow.com/questions/34446722/is-it-possible-for-using-different-pattern-layout-for-different-log-level-and-ou -->
+      <PatternLayout pattern="%d %5p [%10.10t] %-83.80style{%c{1.}.%M(%L)} %3tid | %m%n" />
+    </Console>
+  </Appenders>
+  <Loggers>
+  
+    <!-- dev|time logging configuration (Default: INFO) -->
+    <Logger name="de.devtime" level="INFO" />
+
+    <!-- Hibernate logging configuration -->
+    <!-- see: https://thorben-janssen.com/hibernate-logging-guide/ -->
+    <Logger name="org.hibernate.SQL" level="DEBUG" />
+    <Logger name="org.hibernate.orm.jdbc.bind" level="WARN" />
+    <Logger name="org.springframework.orm.jpa" level="DEBUG" />
+    <Logger name="org.springframework.transaction.interceptor" level="WARN" />
+    <Logger name="org.hibernate.SQL_SLOW" level="INFO" />
+    <Logger name="org.hibernate.stat" level="DEBUG" />
+    <Logger name="org.hibernate.cache" level="DEBUG" />
+
+    <Root level="WARN">
+      <AppenderRef ref="Console" />
+    </Root>
+  </Loggers>
+</Configuration>

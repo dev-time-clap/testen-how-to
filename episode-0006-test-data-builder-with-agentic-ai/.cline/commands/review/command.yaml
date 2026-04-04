@@ -1,0 +1,56 @@
+name: review
+description: "Review Java code for a class, package, or Maven module"
+
+arguments:
+  - name: type
+    enum: [class, package, module]
+    required: true
+  - name: target
+    description: "Class name, package (e.g. com.app.service), or module (e.g. billing-module)"
+    required: true
+
+execution:
+  type: workflow
+
+workflow:
+  steps:
+
+    # 1. Resolve the target directory or files
+    - name: resolve_target
+      description: "Resolve target into file paths"
+      action: search_files
+      with:
+        query: "{{target}}"
+        include:
+          - "**/*.java"
+          - "**/*.xml"
+          - "**/*.properties"
+          - "**/*.yaml"
+
+    # 2. Load the files
+    - name: load_files
+      action: read_files
+      with:
+        files: "{{steps.filter_java_files.output}}"
+
+    # 3. Chunking (important if you have larger packages/modules)
+    - name: chunk_files
+      action: chunk
+      with:
+        input: "{{steps.load_files.contents}}"
+        chunk_size: 5
+
+    # 4. Review chunks
+    - name: review_chunks
+      action: prompt
+      with:
+        template: prompt.md
+        input:
+          files: "{{item}}"
+      foreach: "{{steps.chunk_files.chunks}}"
+
+    # 5. Summarize all results
+    - name: aggregate
+      action: summarize
+      with:
+        input: "{{steps.review_chunks.outputs}}"
