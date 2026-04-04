@@ -8,13 +8,12 @@ import org.springframework.transaction.annotation.Propagation;
 
 import de.devtime.examples.library.context.ApplicationContextProvider;
 import de.devtime.examples.library.persistence.util.TransactionHelper;
+import jakarta.persistence.EntityManager;
 
 public interface TestDataBuilderWithSaveSupport<E, R extends JpaRepository<E, UUID>>
     extends TestDataBuilder<E> {
 
   String getUniqueDataSetKey(E entity);
-
-  R getRepository(final ApplicationContext appContext);
 
   E buildInternally(final boolean withReferences, final boolean save, final SaveContext context);
 
@@ -37,10 +36,10 @@ public interface TestDataBuilderWithSaveSupport<E, R extends JpaRepository<E, UU
       if (saveContext.contains(entity.getClass(), getUniqueDataSetKey(entity))) {
         return saveContext.get(entity.getClass(), getUniqueDataSetKey(entity));
       } else {
-        R repository = getRepository(saveContext.getApplicationContext());
-        E savedEntity = repository.save(entity);
-        saveContext.put(savedEntity.getClass(), getUniqueDataSetKey(savedEntity), savedEntity);
-        return savedEntity;
+        EntityManager entityManager = saveContext.getApplicationContext().getBean(EntityManager.class);
+        entityManager.persist(entity);
+        saveContext.put(entity.getClass(), getUniqueDataSetKey(entity), entity);
+        return entity;
       }
     } else {
       return entity;

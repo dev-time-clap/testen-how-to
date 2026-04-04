@@ -3,8 +3,6 @@ package de.devtime.examples.library.persistence.entity;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.springframework.context.ApplicationContext;
-
 import de.devtime.examples.library.persistence.entity.AdditionalBookDataEntity.AdditionalBookDataEntityBuilder;
 import de.devtime.examples.library.persistence.repository.AdditionalBookDataRepository;
 import de.devtime.examples.library.test.builder.RecursionGuard;
@@ -60,11 +58,6 @@ public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<A
   @Override
   public String getUniqueDataSetKey(final AdditionalBookDataEntity entity) {
     return entity.getSummary();
-  }
-
-  @Override
-  public AdditionalBookDataRepository getRepository(final ApplicationContext appContext) {
-    return appContext.getBean(AdditionalBookDataRepository.class);
   }
 
   @Override
