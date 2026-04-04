@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 
 @Entity
-@Table(name = "Book")
+@Table(name = "BOOK")
 public class BookEntity extends AbstractEntity<BookEntity> {
 
   @Column(name = "ISBN", nullable = false)

@@ -1,4 +1,4 @@
-# JPA Entity Code Style Rule
+# JPA Entity Code Style Rules
 
 ## @MappedSuperclass
 Use an abstract mapped super class when multiple entities exists that uses the same super fields.
@@ -12,7 +12,7 @@ An abstract mapped super class has the following lombok annotaions:
 Annotate the class with @MappedSuperclass.
 All fields in a mapped super class are protected.
 
-Example of a mapped super class: AbstractEntity
+Example of a mapped super class: de.devtime.examples.library.persistence.entity.AbstractEntity
 
 ## @Entity
 
@@ -76,4 +76,4 @@ Override the generated *Builder class from lombok and add:
 - implements the GenericBuilder interface
 - a protected default constructor
 
-Example of an entity class: BookEntity
+Example of an entity class: de.devtime.examples.library.persistence.entity.BookEntity

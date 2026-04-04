@@ -3,10 +3,7 @@ package de.devtime.examples.library.persistence.entity;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.springframework.context.ApplicationContext;
-
 import de.devtime.examples.library.persistence.entity.AdditionalBookDataEntity.AdditionalBookDataEntityBuilder;
-import de.devtime.examples.library.persistence.repository.AdditionalBookDataRepository;
 import de.devtime.examples.library.test.builder.RecursionGuard;
 import de.devtime.examples.library.test.builder.SaveContext;
 import de.devtime.examples.library.test.builder.TestDataBuilder;
@@ -16,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<AdditionalBookDataEntity>>
     extends AdditionalBookDataEntityBuilder<B>
-    implements TestDataBuilderWithSaveSupport<AdditionalBookDataEntity, AdditionalBookDataRepository> {
+    implements TestDataBuilderWithSaveSupport<AdditionalBookDataEntity> {
 
   // --------------------< Add referenced builder here >--------------------
 
@@ -58,13 +55,8 @@ public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<A
   // --------------------< Internal builder logic >--------------------
 
   @Override
-  public String getUniqueDataSetKey(final AdditionalBookDataEntity entity) {
+  public String getUniqueTestDataSetKey(final AdditionalBookDataEntity entity) {
     return entity.getSummary();
-  }
-
-  @Override
-  public AdditionalBookDataRepository getRepository(final ApplicationContext appContext) {
-    return appContext.getBean(AdditionalBookDataRepository.class);
   }
 
   @Override
