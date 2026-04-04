@@ -20,6 +20,7 @@ class TestDataProviderTests {
         .bookByMorriganWithTitleTestingWithJUnitAndCo()
         .withCustomer(CustomerEntityTestDataProvider::customerErikaMustermann)
         .withIsbn("ISBN-0817")
+        .withIsOnLoan(true)
         .and()
         .buildWithReferencesAndSave();
 

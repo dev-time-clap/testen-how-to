@@ -4,7 +4,6 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import de.devtime.examples.library.persistence.entity.BookEntity.BookEntityBuilder;
-import de.devtime.examples.library.persistence.repository.BookRepository;
 import de.devtime.examples.library.test.builder.RecursionGuard;
 import de.devtime.examples.library.test.builder.SaveContext;
 import de.devtime.examples.library.test.builder.TestDataBuilder;
@@ -14,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BookEntityTestDataBuilder<B extends TestDataBuilder<BookEntity>>
     extends BookEntityBuilder<B>
-    implements TestDataBuilderWithSaveSupport<BookEntity, BookRepository> {
+    implements TestDataBuilderWithSaveSupport<BookEntity> {
 
   // --------------------< Add referenced builder here >--------------------
 
@@ -72,7 +71,7 @@ public class BookEntityTestDataBuilder<B extends TestDataBuilder<BookEntity>>
   // --------------------< Internal builder logic >--------------------
 
   @Override
-  public String getUniqueDataSetKey(final BookEntity entity) {
+  public String getUniqueTestDataSetKey(final BookEntity entity) {
     return entity.getIsbn();
   }
 

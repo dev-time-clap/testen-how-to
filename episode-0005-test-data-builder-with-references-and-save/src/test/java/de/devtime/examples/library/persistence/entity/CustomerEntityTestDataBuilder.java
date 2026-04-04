@@ -6,14 +6,13 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import de.devtime.examples.library.persistence.entity.CustomerEntity.CustomerEntityBuilder;
-import de.devtime.examples.library.persistence.repository.CustomerRepository;
 import de.devtime.examples.library.test.builder.SaveContext;
 import de.devtime.examples.library.test.builder.TestDataBuilder;
 import de.devtime.examples.library.test.builder.TestDataBuilderWithSaveSupport;
 
 public class CustomerEntityTestDataBuilder<B extends TestDataBuilder<CustomerEntity>>
     extends CustomerEntityBuilder<B>
-    implements TestDataBuilderWithSaveSupport<CustomerEntity, CustomerRepository> {
+    implements TestDataBuilderWithSaveSupport<CustomerEntity> {
 
   // --------------------< Add referenced builder here >--------------------
 
@@ -51,7 +50,7 @@ public class CustomerEntityTestDataBuilder<B extends TestDataBuilder<CustomerEnt
   // --------------------< Internal builder logic >--------------------
 
   @Override
-  public String getUniqueDataSetKey(final CustomerEntity entity) {
+  public String getUniqueTestDataSetKey(final CustomerEntity entity) {
     return entity.getNumber();
   }
 
