@@ -2,7 +2,6 @@ package de.devtime.examples.library.persistence.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import de.devtime.examples.library.persistence.entity.CustomerEntity.CustomerEntityBuilder;
@@ -30,23 +29,6 @@ public class CustomerEntityTestDataBuilder<B extends TestDataBuilder<CustomerEnt
     return and();
   }
 
-  // --------------------< Add super fields here >--------------------
-
-  private UUID id;
-  private int version;
-  private boolean useExternalId = false;
-
-  public B withId(final UUID id) {
-    this.id = id;
-    this.useExternalId = true;
-    return and();
-  }
-
-  public B withVersion(final int version) {
-    this.version = version;
-    return and();
-  }
-
   // --------------------< Internal builder logic >--------------------
 
   @Override
@@ -59,21 +41,25 @@ public class CustomerEntityTestDataBuilder<B extends TestDataBuilder<CustomerEnt
       final boolean withReferences,
       final boolean save,
       final SaveContext context) {
-    CustomerEntity entity = build().generateId();
-    if (this.useExternalId) {
-      entity.setId(this.id);
+    CustomerEntity entity = build();
+    // If the ID was not set via builder configuration, we have to generate a new ID
+    if (entity.getId() == null) {
+      entity.generateId();
     }
-    entity.setVersion(this.version);
 
-    // Build referenced objects
+    // Build foreign referenced objects
+    // None available
+
+    // Save the entity
+    if (save) {
+      entity = context.saveWithDuplicateCheck(entity, this);
+    }
+
+    // Build inverse referenced objects
     if (withReferences) {
       buildLoanedBooks(entity, withReferences, save, context).forEach(entity::addLoanedBook);
     }
 
-    // Save the entity
-    if (save) {
-      entity = save(entity, context);
-    }
     return entity;
   }
 

@@ -1,13 +1,13 @@
 package de.devtime.examples.library.persistence.entity;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,8 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
-@Builder(setterPrefix = "with")
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true)
 @Getter
@@ -28,8 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 @Entity
 @Table(name = "BOOK_PUBLISHER")
 public class BookPublisherEntity extends AbstractEntity<BookPublisherEntity> {
-
-  //--------------------< Bi-directional links >--------------------
 
   @ManyToOne
   @JoinColumn(name = "PUBLISHER_ID", nullable = false)
@@ -41,6 +37,8 @@ public class BookPublisherEntity extends AbstractEntity<BookPublisherEntity> {
   @Setter(AccessLevel.NONE)
   private BookEntity book;
 
+  //--------------------< Handle access and bi-directional relationships >--------------------
+
   public void setPublisher(final PublisherEntity publisher) {
     // Avoid endless loops
     if (Objects.equals(this.publisher, publisher)) {
@@ -48,14 +46,13 @@ public class BookPublisherEntity extends AbstractEntity<BookPublisherEntity> {
       return;
     }
 
-    // Remember old publisher to be able to remove it on the other side correctly
-    PublisherEntity oldPublisher = this.publisher;
-    this.publisher = publisher;
-
     // Remove old inverse link
-    if (oldPublisher != null) {
-      oldPublisher.getBookPublishers().remove(this);
+    if (this.publisher != null) {
+      this.publisher.getBookPublishers().remove(this);
     }
+
+    // Apply new foreign link
+    this.publisher = publisher;
 
     // Apply new inverse link
     if (publisher != null && !publisher.getBookPublishers().contains(this)) {
@@ -70,14 +67,13 @@ public class BookPublisherEntity extends AbstractEntity<BookPublisherEntity> {
       return;
     }
 
-    // Remember old book to be able to remove it on the other side correctly
-    BookEntity oldBook = this.book;
-    this.book = book;
-
     // Remove old inverse link
-    if (oldBook != null) {
-      oldBook.getBookPublishers().remove(this);
+    if (this.book != null) {
+      this.book.getBookPublishers().remove(this);
     }
+
+    // Apply new foreign link
+    this.book = book;
 
     // Apply new inverse link
     if (book != null && !book.getBookPublishers().contains(this)) {
@@ -86,6 +82,20 @@ public class BookPublisherEntity extends AbstractEntity<BookPublisherEntity> {
   }
 
   //--------------------< Builder-Pattern Support >--------------------
+
+  @Builder(setterPrefix = "with", toBuilder = true)
+  private BookPublisherEntity(
+      final UUID id,
+      final int version,
+      final BookEntity book,
+      final PublisherEntity publisher) {
+    // Simple fields
+    super(id, version, false);
+
+    // Referenced entities
+    this.book = book;
+    this.publisher = publisher;
+  }
 
   public static class BookPublisherEntityBuilder<B> implements GenericBuilder<B> {
     protected BookPublisherEntityBuilder() {}

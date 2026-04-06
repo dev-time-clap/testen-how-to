@@ -14,11 +14,15 @@ import jakarta.persistence.PostPersist;
 import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 @Getter
@@ -31,10 +35,10 @@ public abstract class AbstractEntity<E extends AbstractEntity<?>> implements Per
   @Column(name = "ID", updatable = false, nullable = false)
   @EqualsAndHashCode.Include
   @Setter(value = AccessLevel.PACKAGE)
-  private UUID id;
+  protected UUID id;
 
   @Version
-  private int version;
+  protected int version;
 
   @Transient
   private boolean persisted;

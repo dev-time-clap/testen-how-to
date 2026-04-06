@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import jakarta.persistence.EntityManager;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,5 +45,31 @@ public class SaveContext {
   public void clear() {
     log.trace("Clear save context");
     this.cache.clear();
+  }
+
+  public <E> E saveWithDuplicateCheck(final E entity, final TestDataBuilderWithSaveSupport<E> builder) {
+    if (isSaveSupported()) {
+      String uniqueTestDataSetKey = builder.getUniqueTestDataSetKey(entity);
+      if (contains(entity.getClass(), uniqueTestDataSetKey)) {
+        return get(entity.getClass(), uniqueTestDataSetKey);
+      } else {
+        EntityManager entityManager = this.applicationContext.getBean(EntityManager.class);
+        entityManager.persist(entity);
+        put(entity.getClass(), uniqueTestDataSetKey, entity);
+        return entity;
+      }
+    } else {
+      return entity;
+    }
+  }
+
+  public <E> E save(final E entity) {
+    if (isSaveSupported()) {
+      EntityManager entityManager = this.applicationContext.getBean(EntityManager.class);
+      entityManager.persist(entity);
+      return entity;
+    } else {
+      return entity;
+    }
   }
 }

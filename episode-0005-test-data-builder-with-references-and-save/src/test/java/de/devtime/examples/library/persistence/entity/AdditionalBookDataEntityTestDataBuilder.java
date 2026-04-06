@@ -1,6 +1,5 @@
 package de.devtime.examples.library.persistence.entity;
 
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import de.devtime.examples.library.persistence.entity.AdditionalBookDataEntity.AdditionalBookDataEntityBuilder;
@@ -8,9 +7,7 @@ import de.devtime.examples.library.test.builder.RecursionGuard;
 import de.devtime.examples.library.test.builder.SaveContext;
 import de.devtime.examples.library.test.builder.TestDataBuilder;
 import de.devtime.examples.library.test.builder.TestDataBuilderWithSaveSupport;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<AdditionalBookDataEntity>>
     extends AdditionalBookDataEntityBuilder<B>
     implements TestDataBuilderWithSaveSupport<AdditionalBookDataEntity> {
@@ -21,7 +18,6 @@ public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<A
 
   public B withBook(final Consumer<BookEntityTestDataProvider> consumer) {
     RecursionGuard.guard(BookEntityTestDataProvider.class, () -> {
-      log.info("consumer: {}", consumer);
       this.bookTestDataBuilder = this.bookTestDataBuilder == null
           ? BookEntityTestDataProvider.create()
           : this.bookTestDataBuilder;
@@ -32,23 +28,6 @@ public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<A
 
   public B withBook(final BookEntityTestDataProvider builder) {
     this.bookTestDataBuilder = builder;
-    return and();
-  }
-
-  // --------------------< Add super fields here >--------------------
-
-  private UUID id;
-  private int version;
-  private boolean useExternalId = false;
-
-  public B withId(final UUID id) {
-    this.id = id;
-    this.useExternalId = true;
-    return and();
-  }
-
-  public B withVersion(final int version) {
-    this.version = version;
     return and();
   }
 
@@ -64,23 +43,28 @@ public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<A
       final boolean withReferences,
       final boolean save,
       final SaveContext context) {
-    AdditionalBookDataEntity entity = build().generateId();
-    if (this.useExternalId) {
-      entity.setId(this.id);
+    AdditionalBookDataEntity entity = build();
+    // If the ID was not set via builder configuration, we have to generate a new ID
+    if (entity.getId() == null) {
+      entity.generateId();
     }
-    entity.setVersion(this.version);
 
-    // Build referenced objects
+    // Build foreign referenced objects
+    // None available
+
+    // Save the entity
+    if (save) {
+      entity = context.saveWithDuplicateCheck(entity, this);
+    }
+
+    // Build inverse referenced objects
     if (withReferences) {
+      // If the entity was not set via builder configuration directly, we try to build it via referenced builder
       if (entity.getBook() == null) {
         entity.setBook(buildBook(entity, withReferences, save, context));
       }
     }
 
-    // Save the entity
-    if (save) {
-      entity = save(entity, context);
-    }
     return entity;
   }
 

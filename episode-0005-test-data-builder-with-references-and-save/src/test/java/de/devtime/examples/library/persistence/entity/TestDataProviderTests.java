@@ -2,17 +2,24 @@ package de.devtime.examples.library.persistence.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
+import de.devtime.examples.library.persistence.repository.BookPublisherRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SpringBootTest
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 class TestDataProviderTests {
+
+  @Autowired
+  BookPublisherRepository bookPublisherRepo;
 
   @Test
   void testBookEntityTestDataProvider() {
@@ -27,7 +34,7 @@ class TestDataProviderTests {
     log.info("entity: {}", entity);
     assertThat(entity).isNotNull();
     assertThat(entity.getId()).isNotNull();
-    assertThat(entity.getVersion()).isOne();
+    assertThat(entity.getVersion()).isZero();
     assertThat(entity.getIsbn()).isEqualTo("ISBN-0817");
     assertThat(entity.getTitle()).isEqualTo("Testing with JUnit, Spring & Co.");
     assertThat(entity.isOnLoan()).isTrue();
@@ -75,6 +82,18 @@ class TestDataProviderTests {
     assertThat(entity.getFirstName()).isEqualTo("Max");
     assertThat(entity.getLastName()).isEqualTo("Mustermann");
     assertThat(entity.getNumber()).isEqualTo("knd-0001");
+  }
+
+  @Test
+  void testPublisherEntityTestDataProvider() {
+    PublisherEntity entity = PublisherEntityTestDataProvider.create()
+        .publisherTempelMedia()
+        .withBook(BookEntityTestDataProvider::bookByMorriganWithTitleTestingWithJUnitAndCo)
+        .buildWithReferencesAndSave();
+
+    log.info("entity: {}", entity);
+    List<BookPublisherEntity> all = this.bookPublisherRepo.findAll();
+    log.info("all: {}", all);
   }
 
 }

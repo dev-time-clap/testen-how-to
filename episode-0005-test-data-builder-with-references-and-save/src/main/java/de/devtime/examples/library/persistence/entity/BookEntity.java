@@ -1,8 +1,10 @@
 package de.devtime.examples.library.persistence.entity;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +15,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,53 +25,55 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
-@Builder(setterPrefix = "with")
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @ToString(callSuper = true)
 @Getter
 @Setter
 
 @Entity
-@Table(name = "Book")
+@Table(name = "BOOK")
 public class BookEntity extends AbstractEntity<BookEntity> {
 
   @Column(name = "ISBN", nullable = false)
   private String isbn;
 
-  @Column(name = "TITLE", nullable = false)
-  private String title;
-
   @Column(name = "IS_ON_LOAN")
   private boolean isOnLoan;
 
-  //--------------------< Bi-directional links >--------------------
+  @Column(name = "TITLE", nullable = false)
+  private String title;
 
-  // Primary link: A book has exactly one set of further details.
+  // Foreign link: A book has exactly one set of further details.
   @OneToOne
   @JoinColumn(name = "ADDITIONAL_DATA_ID")
-  @Setter(AccessLevel.NONE)
   private AdditionalBookDataEntity additionalData;
-
-  // Inverse link: A book can be offered by several publishers.
-  @OneToMany(mappedBy = "book")
-  @Builder.Default
-  @ToString.Exclude
-  @Setter(AccessLevel.NONE)
-  private Set<BookPublisherEntity> bookPublishers = new HashSet<>();
-
-  // Primary link: A book can be borrowed by exactly one customer.
-  @ManyToOne
-  @JoinColumn(name = "CUSTOMER_ID")
-  @Setter(AccessLevel.NONE)
-  private CustomerEntity customer;
 
   // Inverse link: A book can have multiple authors, but an author can also write multiple books.
   @ManyToMany(mappedBy = "books")
-  @Builder.Default
   @ToString.Exclude
-  @Setter(AccessLevel.NONE)
+  @Setter(AccessLevel.PACKAGE)
   private Set<AuthorEntity> authors = new HashSet<>();
+
+  // Inverse link: A book can be offered by several publishers.
+  @OneToMany(mappedBy = "book")
+  @ToString.Exclude
+  @Setter(AccessLevel.PACKAGE)
+  private Set<BookPublisherEntity> bookPublishers = new HashSet<>();
+
+  // Foreign link: A book can be borrowed by exactly one customer.
+  @ManyToOne
+  @JoinColumn(name = "CUSTOMER_ID")
+  private CustomerEntity customer;
+
+  //--------------------< Handle access and bi-directional relationships >--------------------
+
+  public Set<BookPublisherEntity> getBookPublishers() {
+    return Collections.unmodifiableSet(this.bookPublishers);
+  }
+
+  public Set<AuthorEntity> getAuthors() {
+    return Collections.unmodifiableSet(this.authors);
+  }
 
   public void setAdditionalData(final AdditionalBookDataEntity additionalData) {
     // Avoid endless loops
@@ -79,52 +82,18 @@ public class BookEntity extends AbstractEntity<BookEntity> {
       return;
     }
 
-    if (this.additionalData != null) {
-      this.additionalData.setBook(null);
-    }
-
+    // Apply new foreign link
+    AdditionalBookDataEntity oldAdditionalBookDataEntity = this.additionalData;
     this.additionalData = additionalData;
 
-    // Apply bi-directional link
-    if (additionalData != null) {
-      additionalData.setBook(this);
-    }
-  }
-
-  public void addBookPublisher(final BookPublisherEntity bookPublisher) {
-    Objects.requireNonNull(bookPublisher);
-
-    // Avoid endless loops
-    if (this.bookPublishers.contains(bookPublisher)) {
-      log.debug("The book-publisher relation {} of the book {} already exist.", bookPublisher, this);
-      return;
-    }
-
-    this.bookPublishers.add(bookPublisher);
-
-    // Apply inverse link
-    bookPublisher.setBook(this);
-  }
-
-  public void setCustomer(final CustomerEntity customer) {
-    // Avoid endless loops
-    if (Objects.equals(this.customer, customer)) {
-      log.debug("The customer {} of the book {} already exist.", customer, this);
-      return;
-    }
-
-    // Remember old customer to be able to remove it on the other side correctly
-    CustomerEntity oldCustomer = this.customer;
-    this.customer = customer;
-
     // Remove old inverse link
-    if (oldCustomer != null) {
-      oldCustomer.getLoanedBooks().remove(this);
+    if (oldAdditionalBookDataEntity != null) {
+      oldAdditionalBookDataEntity.setBook(null);
     }
 
     // Apply new inverse link
-    if (customer != null && !customer.getLoanedBooks().contains(this)) {
-      customer.getLoanedBooks().add(this);
+    if (additionalData != null) {
+      additionalData.setBook(this);
     }
   }
 
@@ -137,6 +106,7 @@ public class BookEntity extends AbstractEntity<BookEntity> {
       return;
     }
 
+    // Apply new foreign link
     this.authors.add(author);
 
     // Apply inverse link
@@ -145,7 +115,100 @@ public class BookEntity extends AbstractEntity<BookEntity> {
     }
   }
 
+  public void removeAuthor(final AuthorEntity author) {
+    Objects.requireNonNull(author);
+
+    // Avoid endless loop
+    if (!this.authors.contains(author)) {
+      log.debug("The author {} of the book {} does not exist.", author, this);
+      return;
+    }
+
+    // Remove the foreign link
+    this.authors.remove(author);
+
+    // Remove the inverse link
+    author.getBooks().remove(this);
+  }
+
+  public void addBookPublisher(final BookPublisherEntity bookPublisher) {
+    Objects.requireNonNull(bookPublisher);
+
+    // Avoid endless loops
+    if (this.bookPublishers.contains(bookPublisher)) {
+      log.debug("The book-publisher relation {} of the book {} already exist.", bookPublisher, this);
+      return;
+    }
+
+    // Apply new foreign link
+    this.bookPublishers.add(bookPublisher);
+
+    // Apply new inverse link
+    bookPublisher.setBook(this);
+  }
+
+  public void removeBookPublisher(final BookPublisherEntity bookPublisher) {
+    Objects.requireNonNull(bookPublisher);
+
+    // Avoid endless loop
+    if (!this.bookPublishers.contains(bookPublisher)) {
+      log.debug("The book-publisher relation {} of the book {} does not exist.", bookPublisher, this);
+      return;
+    }
+
+    // Remove the foreign link
+    this.bookPublishers.remove(bookPublisher);
+
+    // Remove the inverse link
+    bookPublisher.setBook(null);
+  }
+
+  public void setCustomer(final CustomerEntity customer) {
+    // Avoid endless loops
+    if (Objects.equals(this.customer, customer)) {
+      log.debug("The customer {} of the book {} already exist.", customer, this);
+      return;
+    }
+
+    // Remove old inverse link
+    if (this.customer != null) {
+      this.customer.removeLoanedBook(this);
+    }
+
+    // Apply new foreign link
+    this.customer = customer;
+
+    // Apply new inverse link
+    if (customer != null && !customer.getLoanedBooks().contains(this)) {
+      customer.addLoanedBook(this);
+    }
+  }
+
   //--------------------< Builder-Pattern Support >--------------------
+
+  @Builder(setterPrefix = "with", toBuilder = true)
+  private BookEntity(
+      final UUID id,
+      final int version,
+      final String isbn,
+      final boolean isOnLoan,
+      final String title,
+      final Set<AuthorEntity> authors,
+      final AdditionalBookDataEntity additionalData,
+      final Set<BookPublisherEntity> bookPublishers,
+      final CustomerEntity customer) {
+    super(id, version, false);
+    // Simple fields
+    this.isbn = isbn;
+    this.title = title;
+    this.isOnLoan = isOnLoan;
+
+    // Referenced entities
+    this.additionalData = additionalData;
+    this.authors = authors == null ? new HashSet<>() : authors;
+    this.bookPublishers = bookPublishers == null ? new HashSet<>() : bookPublishers;
+    this.customer = customer;
+  }
 
   public static class BookEntityBuilder<B> implements GenericBuilder<B> {
     protected BookEntityBuilder() {}

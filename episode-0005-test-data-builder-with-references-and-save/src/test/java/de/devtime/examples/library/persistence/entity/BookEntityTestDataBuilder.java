@@ -1,6 +1,5 @@
 package de.devtime.examples.library.persistence.entity;
 
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import de.devtime.examples.library.persistence.entity.BookEntity.BookEntityBuilder;
@@ -48,23 +47,6 @@ public class BookEntityTestDataBuilder<B extends TestDataBuilder<BookEntity>>
     return and();
   }
 
-  // --------------------< Add super fields here >--------------------
-
-  private UUID id;
-  private int version;
-  private boolean useExternalId = false;
-
-  public B withId(final UUID id) {
-    this.id = id;
-    this.useExternalId = true;
-    return and();
-  }
-
-  public B withVersion(final int version) {
-    this.version = version;
-    return and();
-  }
-
   // --------------------< Internal builder logic >--------------------
 
   @Override
@@ -74,28 +56,31 @@ public class BookEntityTestDataBuilder<B extends TestDataBuilder<BookEntity>>
 
   @Override
   public BookEntity buildInternally(final boolean withReferences, final boolean save, final SaveContext context) {
-    BookEntity entity = build().generateId();
-    if (this.useExternalId) {
-      entity.setId(this.id);
+    BookEntity entity = build();
+    // If the ID was not set via builder configuration, we have to generate a new ID
+    if (entity.getId() == null) {
+      entity.generateId();
     }
-    entity.setVersion(this.version);
 
-    // Build parent referenced objects
+    // Build foreign referenced objects
     if (withReferences) {
-      entity.setCustomer(buildCustomer(withReferences, save, context));
+      // If the entity was not set via builder configuration directly, we try to build it via referenced builder
+      if (entity.getAdditionalData() == null) {
+        entity.setAdditionalData(buildAdditionalData(entity, withReferences, save, context));
+      }
+      // If the entity was not set via builder configuration directly, we try to build it via referenced builder
+      if (entity.getCustomer() == null) {
+        entity.setCustomer(buildCustomer(withReferences, save, context));
+      }
     }
 
     // Save the entity
     if (save) {
-      entity = save(entity, context);
+      entity = context.saveWithDuplicateCheck(entity, this);
     }
 
-    // Build child referenced objects
-    if (withReferences) {
-      if (entity.getAdditionalData() == null) {
-        entity.setAdditionalData(buildAdditionalData(entity, withReferences, save, context));
-      }
-    }
+    // Build inverse referenced objects
+    // None available
 
     return entity;
   }
