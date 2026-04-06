@@ -8,9 +8,7 @@ import de.devtime.examples.library.test.builder.RecursionGuard;
 import de.devtime.examples.library.test.builder.SaveContext;
 import de.devtime.examples.library.test.builder.TestDataBuilder;
 import de.devtime.examples.library.test.builder.TestDataBuilderWithSaveSupport;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class BookEntityTestDataBuilder<B extends TestDataBuilder<BookEntity>>
     extends BookEntityBuilder<B>
     implements TestDataBuilderWithSaveSupport<BookEntity> {
@@ -22,7 +20,6 @@ public class BookEntityTestDataBuilder<B extends TestDataBuilder<BookEntity>>
 
   public B withAdditionalData(final Consumer<AdditionalBookDataEntityTestDataProvider> consumer) {
     RecursionGuard.guard(AdditionalBookDataEntityTestDataProvider.class, () -> {
-      log.info("consumer: {}", consumer);
       this.additionalDataTestDataProvider = this.additionalDataTestDataProvider == null
           ? AdditionalBookDataEntityTestDataProvider.create()
           : this.additionalDataTestDataProvider;

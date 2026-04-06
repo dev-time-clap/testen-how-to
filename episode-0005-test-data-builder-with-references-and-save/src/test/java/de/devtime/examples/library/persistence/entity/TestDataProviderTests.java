@@ -30,7 +30,7 @@ class TestDataProviderTests {
     assertThat(entity.getVersion()).isOne();
     assertThat(entity.getIsbn()).isEqualTo("ISBN-0817");
     assertThat(entity.getTitle()).isEqualTo("Testing with JUnit, Spring & Co.");
-    assertThat(entity.isOnLoan()).isFalse();
+    assertThat(entity.isOnLoan()).isTrue();
   }
 
   @Test

@@ -10,10 +10,6 @@ import jakarta.persistence.EntityManager;
 public interface TestDataBuilderWithSaveSupport<E>
     extends TestDataBuilder<E> {
 
-  String getUniqueTestDataSetKey(E entity);
-
-  E buildInternally(final boolean withReferences, final boolean save, final SaveContext context);
-
   default E buildWithReferencesAndSave() {
     ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
     TransactionHelper txHelper = applicationContext.getBean(TransactionHelper.class);
@@ -22,6 +18,10 @@ public interface TestDataBuilderWithSaveSupport<E>
       return buildInternally(true, true, saveContext);
     });
   }
+
+  String getUniqueTestDataSetKey(E entity);
+
+  E buildInternally(final boolean withReferences, final boolean save, final SaveContext context);
 
   @Override
   default E buildInternally(final boolean withReferences) {
