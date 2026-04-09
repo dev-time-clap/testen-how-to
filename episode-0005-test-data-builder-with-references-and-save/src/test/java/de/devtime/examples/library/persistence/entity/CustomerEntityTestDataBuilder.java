@@ -5,13 +5,11 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import de.devtime.examples.library.persistence.entity.CustomerEntity.CustomerEntityBuilder;
-import de.devtime.examples.library.test.builder.SaveContext;
 import de.devtime.examples.library.test.builder.TestDataBuilder;
-import de.devtime.examples.library.test.builder.TestDataBuilderWithSaveSupport;
 
 public class CustomerEntityTestDataBuilder<B extends TestDataBuilder<CustomerEntity>>
     extends CustomerEntityBuilder<B>
-    implements TestDataBuilderWithSaveSupport<CustomerEntity> {
+    implements TestDataBuilder<CustomerEntity> {
 
   // --------------------< Add referenced builder here >--------------------
 
@@ -32,45 +30,23 @@ public class CustomerEntityTestDataBuilder<B extends TestDataBuilder<CustomerEnt
   // --------------------< Internal builder logic >--------------------
 
   @Override
-  public String getUniqueTestDataSetKey(final CustomerEntity entity) {
-    return entity.getNumber();
-  }
-
-  @Override
-  public CustomerEntity buildInternally(
-      final boolean withReferences,
-      final boolean save,
-      final SaveContext context) {
+  public CustomerEntity buildInternally(final boolean withReferences) {
     CustomerEntity entity = build();
     // If the ID was not set via builder configuration, we have to generate a new ID
     if (entity.getId() == null) {
       entity.generateId();
     }
 
-    // Build foreign referenced objects
-    // None available
-
-    // Save the entity
-    if (save) {
-      entity = context.saveWithDuplicateCheck(entity, this);
-    }
-
-    // Build inverse referenced objects
+    // Build referenced objects
     if (withReferences) {
-      buildLoanedBooks(entity, withReferences, save, context).forEach(entity::addLoanedBook);
+      buildLoanedBooks(withReferences).forEach(entity::addLoanedBook);
     }
-
     return entity;
   }
 
-  private List<BookEntity> buildLoanedBooks(final CustomerEntity entity, final boolean withReferences,
-      final boolean save,
-      final SaveContext context) {
+  private List<BookEntity> buildLoanedBooks(final boolean withReferences) {
     return this.bookTestDataProviders.stream()
-        .map(provider -> {
-          provider.withCustomer(entity);
-          return provider.buildInternally(withReferences, save, context);
-        })
+        .map(provider -> provider.buildInternally(withReferences))
         .toList();
   }
 }

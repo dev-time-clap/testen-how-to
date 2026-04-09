@@ -34,11 +34,6 @@ public class PublisherEntityTestDataBuilder<B extends TestDataBuilder<PublisherE
   // --------------------< Internal builder logic >---------
 
   @Override
-  public String getUniqueTestDataSetKey(final PublisherEntity entity) {
-    return entity.getName();
-  }
-
-  @Override
   public PublisherEntity buildInternally(
       final boolean withReferences,
       final boolean save,
@@ -53,34 +48,34 @@ public class PublisherEntityTestDataBuilder<B extends TestDataBuilder<PublisherE
     // None available
 
     // Save the entity
-    if (save) {
-      entity = context.saveWithDuplicateCheck(entity, this);
-    }
+    //    if (save) {
+    //      entity = context.saveWithDuplicateCheck(entity, this);
+    //    }
 
     // Build inverse referenced objects
-    if (withReferences) {
-      List<BookEntity> books = buildBooks(withReferences, save, context);
-      Set<BookPublisherEntity> bookPublishers = buildBookPublishers(books, entity);
-      books.forEach(book -> book.setBookPublishers(bookPublishers));
-      entity.setBookPublishers(bookPublishers);
-      if (save) {
-        bookPublishers.forEach(context::save);
-      }
-    }
+    //    if (withReferences) {
+    //      List<BookEntity> books = buildBooks(withReferences, save, context);
+    //      Set<BookPublisherEntity> bookPublishers = buildBookPublishers(books, entity);
+    //      books.forEach(book -> book.setBookPublishers(bookPublishers));
+    //      entity.setBookPublishers(bookPublishers);
+    //      if (save) {
+    //                bookPublishers.forEach(context::save);
+    //      }
+    //    }
 
     return entity;
   }
 
-  private List<BookEntity> buildBooks(
-      final boolean withReferences,
-      final boolean save,
-      final SaveContext context) {
-    return this.bookTestDataProviders.stream()
-        .map(provider -> {
-          return provider.buildInternally(withReferences, save, context);
-        })
-        .toList();
-  }
+  //  private List<BookEntity> buildBooks(
+  //      final boolean withReferences,
+  //      final boolean save,
+  //      final SaveContext context) {
+  //    return this.bookTestDataProviders.stream()
+  //        .map(provider -> {
+  //          return provider.buildInternally(withReferences, save, context);
+  //        })
+  //        .toList();
+  //  }
 
   private Set<BookPublisherEntity> buildBookPublishers(final List<BookEntity> books, final PublisherEntity publisher) {
     return books.stream()

@@ -29,7 +29,7 @@ class TestDataProviderTests {
         .withIsbn("ISBN-0817")
         .withIsOnLoan(true)
         .and()
-        .buildWithReferencesAndSave();
+        .buildWithReferences();
 
     log.info("entity: {}", entity);
     assertThat(entity).isNotNull();
@@ -63,7 +63,7 @@ class TestDataProviderTests {
         .withLoanedBook(BookEntityTestDataProvider::bookByMorriganWithTitleTestingWithJUnitAndCo)
         .withLoanedBook(BookEntityTestDataProvider::bookByMorriganWithTitleLombokHowTo)
         .withLoanedBook(BookEntityTestDataProvider::bookByMorriganWithTitleSpringBootPrototyping)
-        .buildWithReferencesAndSave();
+        .buildWithReferences();
 
     log.info("entity: {}", entity);
     assertThat(entity).isNotNull();
@@ -74,7 +74,7 @@ class TestDataProviderTests {
 
     entity = CustomerEntityTestDataProvider.create()
         .customerMaxMustermann()
-        .buildWithReferencesAndSave();
+        .buildWithReferences();
 
     log.info("entity: {}", entity);
     assertThat(entity).isNotNull();

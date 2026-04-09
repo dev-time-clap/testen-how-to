@@ -56,9 +56,6 @@ public class PublisherEntity extends AbstractEntity<PublisherEntity> {
 
     // Apply new foreign link
     this.bookPublishers.add(bookPublisher);
-
-    // Apply inverse link
-    bookPublisher.setPublisher(this);
   }
 
   public void removeBookPublisher(final BookPublisherEntity bookPublisher) {
@@ -72,9 +69,6 @@ public class PublisherEntity extends AbstractEntity<PublisherEntity> {
 
     // Remove the foreign link
     this.bookPublishers.remove(bookPublisher);
-
-    // Remove the inverse link
-    bookPublisher.setPublisher(null);
   }
 
   //--------------------< Builder-Pattern Support >--------------------

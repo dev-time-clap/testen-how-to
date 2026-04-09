@@ -34,11 +34,6 @@ public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<A
   // --------------------< Internal builder logic >--------------------
 
   @Override
-  public String getUniqueTestDataSetKey(final AdditionalBookDataEntity entity) {
-    return entity.getSummary();
-  }
-
-  @Override
   public AdditionalBookDataEntity buildInternally(
       final boolean withReferences,
       final boolean save,
@@ -49,31 +44,22 @@ public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<A
       entity.generateId();
     }
 
-    // Build foreign referenced objects
-    // None available
+    // Build referenced objects
+    if (withReferences) {
+      entity.setBook(buildBook(withReferences));
+    }
 
     // Save the entity
     if (save) {
-      entity = context.saveWithDuplicateCheck(entity, this);
+      context.save(entity);
     }
-
-    // Build inverse referenced objects
-    if (withReferences) {
-      // If the entity was not set via builder configuration directly, we try to build it via referenced builder
-      if (entity.getBook() == null) {
-        entity.setBook(buildBook(entity, withReferences, save, context));
-      }
-    }
-
     return entity;
   }
 
-  private BookEntity buildBook(final AdditionalBookDataEntity entity, final boolean withReferences, final boolean save,
-      final SaveContext context) {
+  private BookEntity buildBook(final boolean withReferences) {
     BookEntity referencedEntity = null;
     if (this.bookTestDataBuilder != null) {
-      this.bookTestDataBuilder.withAdditionalData(entity);
-      referencedEntity = this.bookTestDataBuilder.buildInternally(withReferences, save, context);
+      referencedEntity = this.bookTestDataBuilder.buildInternally(withReferences);
     }
     return referencedEntity;
   }

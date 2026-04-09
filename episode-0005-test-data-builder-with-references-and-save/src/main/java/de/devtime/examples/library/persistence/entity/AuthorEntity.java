@@ -1,6 +1,7 @@
 package de.devtime.examples.library.persistence.entity;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -8,9 +9,7 @@ import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -44,48 +43,42 @@ public class AuthorEntity extends AbstractEntity<AuthorEntity> {
   @Column(name = "LAST_NAME")
   private String lastName;
 
-  //--------------------< Bi-directional links >--------------------
-
-  @ManyToMany
-  @JoinTable(name = "AUTHOR_BOOK", joinColumns = @JoinColumn(name = "AUTHOR_ID"), inverseJoinColumns = @JoinColumn(name = "BOOK_ID"))
+  // Inverse link
+  @OneToMany(mappedBy = "author")
   @ToString.Exclude
-  @Setter(AccessLevel.NONE)
-  private Set<BookEntity> books = new HashSet<>();
+  @Setter(AccessLevel.PACKAGE)
+  private Set<BookAuthorEntity> bookAuthors = new HashSet<>();
 
   //--------------------< Handle bi-directional relationships >--------------------
 
-  public void addBook(final BookEntity book) {
-    Objects.requireNonNull(book);
+  public Set<BookAuthorEntity> getBookAuthors() {
+    return Collections.unmodifiableSet(this.bookAuthors);
+  }
+
+  public void addBookAuthor(final BookAuthorEntity bookAuthor) {
+    Objects.requireNonNull(bookAuthor);
 
     // Avoid endless loops
-    if (this.books.contains(book)) {
-      log.debug("The book {} of the author {} already exist.", book, this);
+    if (this.bookAuthors.contains(bookAuthor)) {
+      log.debug("The book-author relation {} of the author {} already exist.", bookAuthor, this);
       return;
     }
 
     // Apply new foreign link
-    this.books.add(book);
-
-    // Apply inverse link
-    if (!book.getAuthors().contains(this)) {
-      book.getAuthors().add(this);
-    }
+    this.bookAuthors.add(bookAuthor);
   }
 
-  public void removeBook(final BookEntity book) {
-    Objects.requireNonNull(book);
+  public void removeBookAuthor(final BookAuthorEntity bookAuthor) {
+    Objects.requireNonNull(bookAuthor);
 
     // Avoid endless loops
-    if (!this.books.contains(book)) {
-      log.debug("The book {} is not associated with the author {}", book, this);
+    if (!this.bookAuthors.contains(bookAuthor)) {
+      log.debug("The book-author relation {} is not associated with the author {}", bookAuthor, this);
       return;
     }
 
     // Remove foreign link
-    this.books.remove(book);
-
-    // Remove inverse link
-    book.getAuthors().remove(this);
+    this.bookAuthors.remove(bookAuthor);
   }
 
   //--------------------< Builder-Pattern Support >--------------------
@@ -98,7 +91,7 @@ public class AuthorEntity extends AbstractEntity<AuthorEntity> {
       final LocalDate birthday,
       final String firstName,
       final String lastName,
-      final Set<BookEntity> books) {
+      final Set<BookAuthorEntity> bookAuthors) {
     // Simple fields
     super(id, version, false);
     this.artistName = artistName;
@@ -107,7 +100,7 @@ public class AuthorEntity extends AbstractEntity<AuthorEntity> {
     this.lastName = lastName;
 
     // Referenced entities
-    this.books = books == null ? new HashSet<>() : books;
+    this.bookAuthors = bookAuthors == null ? new HashSet<>() : bookAuthors;
   }
 
   public static class AuthorEntityBuilder<B> implements GenericBuilder<B> {

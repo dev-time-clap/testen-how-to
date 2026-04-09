@@ -4,13 +4,11 @@ import java.util.function.Consumer;
 
 import de.devtime.examples.library.persistence.entity.BookEntity.BookEntityBuilder;
 import de.devtime.examples.library.test.builder.RecursionGuard;
-import de.devtime.examples.library.test.builder.SaveContext;
 import de.devtime.examples.library.test.builder.TestDataBuilder;
-import de.devtime.examples.library.test.builder.TestDataBuilderWithSaveSupport;
 
 public class BookEntityTestDataBuilder<B extends TestDataBuilder<BookEntity>>
     extends BookEntityBuilder<B>
-    implements TestDataBuilderWithSaveSupport<BookEntity> {
+    implements TestDataBuilder<BookEntity> {
 
   // --------------------< Add referenced builder here >--------------------
 
@@ -50,59 +48,36 @@ public class BookEntityTestDataBuilder<B extends TestDataBuilder<BookEntity>>
   // --------------------< Internal builder logic >--------------------
 
   @Override
-  public String getUniqueTestDataSetKey(final BookEntity entity) {
-    return entity.getIsbn();
-  }
-
-  @Override
-  public BookEntity buildInternally(final boolean withReferences, final boolean save, final SaveContext context) {
+  public BookEntity buildInternally(final boolean withReferences) {
     BookEntity entity = build();
     // If the ID was not set via builder configuration, we have to generate a new ID
     if (entity.getId() == null) {
       entity.generateId();
     }
 
-    // Build foreign referenced objects
+    // Build referenced objects
     if (withReferences) {
-      // If the entity was not set via builder configuration directly, we try to build it via referenced builder
-      if (entity.getAdditionalData() == null) {
-        entity.setAdditionalData(buildAdditionalData(entity, withReferences, save, context));
-      }
-      // If the entity was not set via builder configuration directly, we try to build it via referenced builder
-      if (entity.getCustomer() == null) {
-        entity.setCustomer(buildCustomer(withReferences, save, context));
-      }
+      entity.setAdditionalData(buildAdditionalData(withReferences));
+      entity.setCustomer(buildCustomer(withReferences));
     }
-
-    // Save the entity
-    if (save) {
-      entity = context.saveWithDuplicateCheck(entity, this);
-    }
-
-    // Build inverse referenced objects
-    // None available
 
     return entity;
   }
 
-  private AdditionalBookDataEntity buildAdditionalData(final BookEntity entity, final boolean withReferences,
-      final boolean save,
-      final SaveContext context) {
+  private AdditionalBookDataEntity buildAdditionalData(final boolean withReferences) {
     AdditionalBookDataEntity referencedEntity = null;
     if (this.additionalDataTestDataProvider != null) {
-      this.additionalDataTestDataProvider.withBook(entity);
-      referencedEntity = this.additionalDataTestDataProvider.buildInternally(withReferences, save, context);
+      referencedEntity = this.additionalDataTestDataProvider.buildInternally(withReferences);
     }
     return referencedEntity;
   }
 
-  private CustomerEntity buildCustomer(final boolean withReferences, final boolean save,
-      final SaveContext context) {
+  private CustomerEntity buildCustomer(final boolean withReferences) {
     CustomerEntity referencedEntity = null;
     if (this.customerTestDataProvider != null) {
-      referencedEntity = this.customerTestDataProvider.buildInternally(withReferences,
-          save, context);
+      referencedEntity = this.customerTestDataProvider.buildInternally(withReferences);
     }
     return referencedEntity;
   }
+
 }

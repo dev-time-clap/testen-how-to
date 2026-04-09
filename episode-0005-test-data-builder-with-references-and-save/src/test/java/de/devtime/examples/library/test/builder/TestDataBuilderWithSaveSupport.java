@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Propagation;
 
 import de.devtime.examples.library.context.ApplicationContextProvider;
 import de.devtime.examples.library.persistence.util.TransactionHelper;
-import jakarta.persistence.EntityManager;
 
 public interface TestDataBuilderWithSaveSupport<E>
     extends TestDataBuilder<E> {
@@ -19,27 +18,10 @@ public interface TestDataBuilderWithSaveSupport<E>
     });
   }
 
-  String getUniqueTestDataSetKey(E entity);
-
   E buildInternally(final boolean withReferences, final boolean save, final SaveContext context);
 
   @Override
   default E buildInternally(final boolean withReferences) {
     return buildInternally(withReferences, false, null);
-  }
-
-  default E save(final E entity, final SaveContext saveContext) {
-    if (saveContext != null && saveContext.isSaveSupported()) {
-      if (saveContext.contains(entity.getClass(), getUniqueTestDataSetKey(entity))) {
-        return saveContext.get(entity.getClass(), getUniqueTestDataSetKey(entity));
-      } else {
-        EntityManager entityManager = saveContext.getApplicationContext().getBean(EntityManager.class);
-        entityManager.persist(entity);
-        saveContext.put(entity.getClass(), getUniqueTestDataSetKey(entity), entity);
-        return entity;
-      }
-    } else {
-      return entity;
-    }
   }
 }
