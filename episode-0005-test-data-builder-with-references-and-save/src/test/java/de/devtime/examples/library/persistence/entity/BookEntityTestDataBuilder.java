@@ -5,11 +5,10 @@ import java.util.function.Consumer;
 import de.devtime.examples.library.persistence.entity.BookEntity.BookEntityBuilder;
 import de.devtime.examples.library.test.builder.RecursionGuard;
 import de.devtime.examples.library.test.builder.TestDataBuilder;
-import de.devtime.examples.library.test.builder.TestDataBuilderWithSaveSupport;
 
 public class BookEntityTestDataBuilder<B extends TestDataBuilder<BookEntity>>
     extends BookEntityBuilder<B>
-    implements TestDataBuilderWithSaveSupport<BookEntity> {
+    implements TestDataBuilder<BookEntity> {
 
   // --------------------< Add referenced builder here >--------------------
 
