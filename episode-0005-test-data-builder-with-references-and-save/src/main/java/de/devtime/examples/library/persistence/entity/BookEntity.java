@@ -9,7 +9,6 @@ import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -49,16 +48,10 @@ public class BookEntity extends AbstractEntity<BookEntity> {
   private AdditionalBookDataEntity additionalData;
 
   // Inverse link: A book can have multiple authors, but an author can also write multiple books.
-  @ManyToMany(mappedBy = "author")
-  @ToString.Exclude
-  @Setter(AccessLevel.PACKAGE)
-  private Set<BookAuthorEntity> bookAuthors = new HashSet<>();
-
-  // Inverse link: A book can be offered by several publishers.
   @OneToMany(mappedBy = "book")
   @ToString.Exclude
   @Setter(AccessLevel.PACKAGE)
-  private Set<BookPublisherEntity> bookPublishers = new HashSet<>();
+  private Set<BookAuthorEntity> bookAuthors = new HashSet<>();
 
   // Foreign link: A book can be borrowed by exactly one customer.
   @ManyToOne
@@ -66,10 +59,6 @@ public class BookEntity extends AbstractEntity<BookEntity> {
   private CustomerEntity customer;
 
   //--------------------< Handle access and bi-directional relationships >--------------------
-
-  public Set<BookPublisherEntity> getBookPublishers() {
-    return Collections.unmodifiableSet(this.bookPublishers);
-  }
 
   public Set<BookAuthorEntity> getBookAuthors() {
     return Collections.unmodifiableSet(this.bookAuthors);
@@ -129,38 +118,6 @@ public class BookEntity extends AbstractEntity<BookEntity> {
     bookAuthor.setBook(null);
   }
 
-  public void addBookPublisher(final BookPublisherEntity bookPublisher) {
-    Objects.requireNonNull(bookPublisher);
-
-    // Avoid endless loops
-    if (this.bookPublishers.contains(bookPublisher)) {
-      log.debug("The book-publisher relation {} of the book {} already exist.", bookPublisher, this);
-      return;
-    }
-
-    // Apply new foreign link
-    this.bookPublishers.add(bookPublisher);
-
-    // Apply new inverse link
-    bookPublisher.setBook(this);
-  }
-
-  public void removeBookPublisher(final BookPublisherEntity bookPublisher) {
-    Objects.requireNonNull(bookPublisher);
-
-    // Avoid endless loop
-    if (!this.bookPublishers.contains(bookPublisher)) {
-      log.debug("The book-publisher relation {} of the book {} does not exist.", bookPublisher, this);
-      return;
-    }
-
-    // Remove the foreign link
-    this.bookPublishers.remove(bookPublisher);
-
-    // Remove the inverse link
-    bookPublisher.setBook(null);
-  }
-
   public void setCustomer(final CustomerEntity customer) {
     // Avoid endless loops
     if (Objects.equals(this.customer, customer)) {
@@ -193,7 +150,6 @@ public class BookEntity extends AbstractEntity<BookEntity> {
       final String title,
       final Set<BookAuthorEntity> bookAuthors,
       final AdditionalBookDataEntity additionalData,
-      final Set<BookPublisherEntity> bookPublishers,
       final CustomerEntity customer) {
     super(id, version, false);
     // Simple fields
@@ -204,7 +160,6 @@ public class BookEntity extends AbstractEntity<BookEntity> {
     // Referenced entities
     this.additionalData = additionalData;
     this.bookAuthors = bookAuthors == null ? new HashSet<>() : bookAuthors;
-    this.bookPublishers = bookPublishers == null ? new HashSet<>() : bookPublishers;
     this.customer = customer;
   }
 

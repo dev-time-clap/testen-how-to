@@ -2,15 +2,13 @@ package de.devtime.examples.library.persistence.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
-import de.devtime.examples.library.persistence.repository.BookPublisherRepository;
+import de.devtime.examples.library.persistence.repository.BookAuthorRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -19,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 class TestDataProviderTests {
 
   @Autowired
-  BookPublisherRepository bookPublisherRepo;
+  BookAuthorRepository bookPublisherRepo;
 
   @Test
   void testBookEntityTestDataProvider() {
@@ -83,17 +81,4 @@ class TestDataProviderTests {
     assertThat(entity.getLastName()).isEqualTo("Mustermann");
     assertThat(entity.getNumber()).isEqualTo("knd-0001");
   }
-
-  @Test
-  void testPublisherEntityTestDataProvider() {
-    PublisherEntity entity = PublisherEntityTestDataProvider.create()
-        .publisherTempelMedia()
-        .withBook(BookEntityTestDataProvider::bookByMorriganWithTitleTestingWithJUnitAndCo)
-        .buildWithReferencesAndSave();
-
-    log.info("entity: {}", entity);
-    List<BookPublisherEntity> all = this.bookPublisherRepo.findAll();
-    log.info("all: {}", all);
-  }
-
 }
