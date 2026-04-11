@@ -36,4 +36,9 @@ public class AuthorEntityTestDataProvider extends AuthorEntityTestDataBuilder<Au
     withArtistName("Anonymus");
     return and();
   }
+
+  @Override
+  public String getUniqueTestDataSetKey(final AuthorEntity entity) {
+    return entity.getArtistName();
+  }
 }

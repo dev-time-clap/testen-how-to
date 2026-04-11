@@ -101,7 +101,7 @@ public class CustomerEntity extends AbstractEntity<CustomerEntity> {
     this.number = number;
 
     // Referenced entities
-    this.loanedBooks = loanedBooks == null ? new HashSet<>() : loanedBooks;
+    this.loanedBooks = loanedBooks == null ? new HashSet<>() : new HashSet<>(loanedBooks);
   }
 
   public static class CustomerEntityBuilder<B> implements GenericBuilder<B> {

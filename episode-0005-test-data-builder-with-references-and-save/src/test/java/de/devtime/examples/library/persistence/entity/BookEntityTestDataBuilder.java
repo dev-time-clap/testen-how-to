@@ -12,7 +12,7 @@ import de.devtime.examples.library.test.builder.SaveContext;
 import de.devtime.examples.library.test.builder.TestDataBuilder;
 import de.devtime.examples.library.test.builder.TestDataBuilderWithSaveSupport;
 
-public class BookEntityTestDataBuilder<B extends TestDataBuilder<BookEntity>>
+public abstract class BookEntityTestDataBuilder<B extends TestDataBuilder<BookEntity>>
     extends BookEntityBuilder<B>
     implements TestDataBuilderWithSaveSupport<BookEntity> {
 
@@ -85,7 +85,7 @@ public class BookEntityTestDataBuilder<B extends TestDataBuilder<BookEntity>>
 
     // Save the entity
     if (save) {
-      context.save(entity);
+      entity = context.saveWithDuplicateCheck(entity, this);
     }
 
     // Build inverse referenced objects

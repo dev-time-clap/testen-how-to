@@ -11,7 +11,7 @@ import de.devtime.examples.library.test.builder.SaveContext;
 import de.devtime.examples.library.test.builder.TestDataBuilder;
 import de.devtime.examples.library.test.builder.TestDataBuilderWithSaveSupport;
 
-public class AuthorEntityTestDataBuilder<B extends TestDataBuilder<AuthorEntity>>
+public abstract class AuthorEntityTestDataBuilder<B extends TestDataBuilder<AuthorEntity>>
     extends AuthorEntityBuilder<B>
     implements TestDataBuilderWithSaveSupport<AuthorEntity> {
 
@@ -49,13 +49,13 @@ public class AuthorEntityTestDataBuilder<B extends TestDataBuilder<AuthorEntity>
 
     // Save the entity
     if (save) {
-      context.save(entity);
+      entity = context.saveWithDuplicateCheck(entity, this);
     }
 
     // Build inverse referenced objects
     if (withReferences) {
       List<BookEntity> books = buildBooks(withReferences, save, context);
-      Set<BookAuthorEntity> bookPublishers = buildBookPublishers(books, entity);
+      Set<BookAuthorEntity> bookPublishers = buildBookAuthors(books, entity);
       books.forEach(book -> book.setBookAuthors(bookPublishers));
       entity.setBookAuthors(bookPublishers);
       if (save) {
@@ -76,7 +76,7 @@ public class AuthorEntityTestDataBuilder<B extends TestDataBuilder<AuthorEntity>
         .toList();
   }
 
-  private Set<BookAuthorEntity> buildBookPublishers(final List<BookEntity> books, final AuthorEntity publisher) {
+  private Set<BookAuthorEntity> buildBookAuthors(final List<BookEntity> books, final AuthorEntity publisher) {
     return books.stream()
         .map(book -> BookAuthorEntity.builder()
             .withBook(book)

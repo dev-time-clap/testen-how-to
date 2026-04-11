@@ -28,4 +28,8 @@ public class BookEntityTestDataProvider extends BookEntityTestDataBuilder<BookEn
     return and();
   }
 
+  @Override
+  public String getUniqueTestDataSetKey(final BookEntity entity) {
+    return entity.getIsbn();
+  }
 }

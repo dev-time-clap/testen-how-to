@@ -18,6 +18,8 @@ public interface TestDataBuilderWithSaveSupport<E>
     });
   }
 
+  String getUniqueTestDataSetKey(E entity);
+
   E buildInternally(final boolean withReferences, final boolean save, final SaveContext context);
 
   @Override

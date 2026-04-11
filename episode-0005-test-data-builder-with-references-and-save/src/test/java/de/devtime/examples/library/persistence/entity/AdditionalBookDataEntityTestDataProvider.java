@@ -23,4 +23,9 @@ public class AdditionalBookDataEntityTestDataProvider
     withPageCount(null);
     return and();
   }
+
+  @Override
+  public String getUniqueTestDataSetKey(final AdditionalBookDataEntity entity) {
+    return entity.getSummary();
+  }
 }

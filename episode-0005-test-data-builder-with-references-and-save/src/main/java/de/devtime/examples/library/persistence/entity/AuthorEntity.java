@@ -17,6 +17,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.Singular;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
@@ -91,7 +92,7 @@ public class AuthorEntity extends AbstractEntity<AuthorEntity> {
       final LocalDate birthday,
       final String firstName,
       final String lastName,
-      final Set<BookAuthorEntity> bookAuthors) {
+      @Singular final Set<BookAuthorEntity> bookAuthors) {
     // Simple fields
     super(id, version, false);
     this.artistName = artistName;
@@ -100,7 +101,7 @@ public class AuthorEntity extends AbstractEntity<AuthorEntity> {
     this.lastName = lastName;
 
     // Referenced entities
-    this.bookAuthors = bookAuthors == null ? new HashSet<>() : bookAuthors;
+    this.bookAuthors = bookAuthors == null ? new HashSet<>() : new HashSet<>(bookAuthors);
   }
 
   public static class AuthorEntityBuilder<B> implements GenericBuilder<B> {

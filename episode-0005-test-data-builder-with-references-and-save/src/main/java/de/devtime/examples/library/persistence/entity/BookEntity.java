@@ -19,6 +19,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.Singular;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
@@ -148,7 +149,7 @@ public class BookEntity extends AbstractEntity<BookEntity> {
       final String isbn,
       final boolean isOnLoan,
       final String title,
-      final Set<BookAuthorEntity> bookAuthors,
+      @Singular final Set<BookAuthorEntity> bookAuthors,
       final AdditionalBookDataEntity additionalData,
       final CustomerEntity customer) {
     super(id, version, false);
@@ -159,7 +160,7 @@ public class BookEntity extends AbstractEntity<BookEntity> {
 
     // Referenced entities
     this.additionalData = additionalData;
-    this.bookAuthors = bookAuthors == null ? new HashSet<>() : bookAuthors;
+    this.bookAuthors = bookAuthors == null ? new HashSet<>() : new HashSet<>(bookAuthors);
     this.customer = customer;
   }
 

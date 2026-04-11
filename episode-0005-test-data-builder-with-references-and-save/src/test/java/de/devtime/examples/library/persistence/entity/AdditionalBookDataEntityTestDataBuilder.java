@@ -8,7 +8,7 @@ import de.devtime.examples.library.test.builder.SaveContext;
 import de.devtime.examples.library.test.builder.TestDataBuilder;
 import de.devtime.examples.library.test.builder.TestDataBuilderWithSaveSupport;
 
-public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<AdditionalBookDataEntity>>
+public abstract class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<AdditionalBookDataEntity>>
     extends AdditionalBookDataEntityBuilder<B>
     implements TestDataBuilderWithSaveSupport<AdditionalBookDataEntity> {
 
@@ -49,7 +49,7 @@ public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<A
 
     // Save the entity
     if (save) {
-      context.save(entity);
+      entity = context.saveWithDuplicateCheck(entity, this);
     }
 
     // Build referenced objects

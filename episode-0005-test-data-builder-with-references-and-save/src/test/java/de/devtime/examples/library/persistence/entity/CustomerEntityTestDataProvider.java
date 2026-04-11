@@ -22,4 +22,9 @@ public class CustomerEntityTestDataProvider extends CustomerEntityTestDataBuilde
     withNumber("knd-0002");
     return and();
   }
+
+  @Override
+  public String getUniqueTestDataSetKey(final CustomerEntity entity) {
+    return entity.getNumber();
+  }
 }
