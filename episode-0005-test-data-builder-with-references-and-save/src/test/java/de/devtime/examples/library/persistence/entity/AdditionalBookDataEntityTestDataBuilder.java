@@ -45,21 +45,33 @@ public class AdditionalBookDataEntityTestDataBuilder<B extends TestDataBuilder<A
     }
 
     // Build referenced objects
-    if (withReferences) {
-      entity.setBook(buildBook(withReferences));
-    }
+    // None available
 
     // Save the entity
     if (save) {
       context.save(entity);
     }
+
+    // Build referenced objects
+    if (withReferences) {
+      entity.setBook(buildBook(entity, withReferences, save, context));
+    }
+
     return entity;
   }
 
-  private BookEntity buildBook(final boolean withReferences) {
+  private BookEntity buildBook(
+      final AdditionalBookDataEntity entity,
+      final boolean withReferences,
+      final boolean save,
+      final SaveContext context) {
+    if (entity.getBook() != null) {
+      return entity.getBook();
+    }
     BookEntity referencedEntity = null;
     if (this.bookTestDataBuilder != null) {
-      referencedEntity = this.bookTestDataBuilder.buildInternally(withReferences);
+      this.bookTestDataBuilder.withAdditionalData(entity);
+      referencedEntity = this.bookTestDataBuilder.buildInternally(withReferences, save, context);
     }
     return referencedEntity;
   }

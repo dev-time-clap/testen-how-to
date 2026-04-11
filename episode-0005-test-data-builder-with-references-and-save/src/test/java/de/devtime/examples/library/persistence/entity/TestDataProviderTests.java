@@ -8,7 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
+import de.devtime.examples.library.persistence.repository.AuthorRepository;
 import de.devtime.examples.library.persistence.repository.BookAuthorRepository;
+import de.devtime.examples.library.persistence.repository.BookRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -17,17 +19,40 @@ import lombok.extern.slf4j.Slf4j;
 class TestDataProviderTests {
 
   @Autowired
-  BookAuthorRepository bookPublisherRepo;
+  BookRepository bookRepo;
+
+  @Autowired
+  AuthorRepository authorRepo;
+
+  @Autowired
+  BookAuthorRepository bookAuthorRepo;
+
+  @Test
+  void testMultipleBooksWithSameAuthor() {
+    BookEntityTestDataProvider.create()
+        .bookByMorriganWithTitleTestingWithJUnitAndCo()
+        .withAuthor(AuthorEntityTestDataProvider::authorMorrigan)
+        .buildWithReferencesAndSave();
+
+    BookEntityTestDataProvider.create()
+        .bookByMorriganWithTitleLombokHowTo()
+        .withAuthor(AuthorEntityTestDataProvider::authorMorrigan)
+        .buildWithReferencesAndSave();
+
+    this.bookRepo.findAll().forEach(book -> log.info("book: {}", book));
+    this.authorRepo.findAll().forEach(author -> log.info("author: {}", author));
+    this.bookAuthorRepo.findAll().forEach(bookAuthor -> log.info("bookAuthor: {}", bookAuthor));
+  }
 
   @Test
   void testBookEntityTestDataProvider() {
     BookEntity entity = BookEntityTestDataProvider.create()
         .bookByMorriganWithTitleTestingWithJUnitAndCo()
-        .withCustomer(CustomerEntityTestDataProvider::customerErikaMustermann)
+        .withAuthor(AuthorEntityTestDataProvider::authorMorrigan)
         .withIsbn("ISBN-0817")
         .withIsOnLoan(true)
         .and()
-        .buildWithReferences();
+        .buildWithReferencesAndSave();
 
     log.info("entity: {}", entity);
     assertThat(entity).isNotNull();

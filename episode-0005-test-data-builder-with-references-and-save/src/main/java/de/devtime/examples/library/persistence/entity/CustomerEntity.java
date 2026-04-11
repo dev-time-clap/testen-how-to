@@ -16,6 +16,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.Singular;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
@@ -92,7 +93,7 @@ public class CustomerEntity extends AbstractEntity<CustomerEntity> {
       final String firstName,
       final String lastName,
       final String number,
-      final Set<BookEntity> loanedBooks) {
+      @Singular final Set<BookEntity> loanedBooks) {
     // Simple fields
     super(id, version, false);
     this.firstName = firstName;
